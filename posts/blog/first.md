@@ -1,5 +1,5 @@
 ---
-title: "First Blog Post"
+title: First Blog Post
 description: Why I'm starting to blog and my blogging engine
 date: 2025-09-24
 ---
