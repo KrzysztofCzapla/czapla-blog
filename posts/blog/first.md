@@ -34,7 +34,7 @@ Nothing extraordinary, I am still not sure about all this, but I wanted to try t
 
 ## Blogging Engine
 
-Inspired by [braindead](https://github.com/grski/braindead) by Olaf Górski I decided to write my own blogging engine
+Inspired by [braindead](https://github.com/grski/braindead) by Olaf Gorski I decided to write my own blogging engine
 that can fit my needs. It didn't take a lot of time but it was a fun experience.
 
 Basic idea is to write posts in markdown and using jinja2 templates transform them automatically into html that can 
@@ -56,7 +56,7 @@ In the next post I want to say more about me and about stuff I want to start doi
 
 I need to also describe my main inspirations for this site:
 
-1. [grski.pl](https://grski.pl/) - Olaf Górski - I owe a lot to the guy behind this blog. It inspired me to pursue my career. 
+1. [grski.pl](https://grski.pl/) - Olaf Gorski - I owe a lot to the guy behind this blog. It inspired me to pursue my career. 
 I wouldn't be where I am today without him. I also like his style of blogging a lot.
 2. [lukesmith.xyz](https://lukesmith.xyz/) - Luke Smith is a rather controversial figure, but I really like the
 style of his page. I think I want my page to be more like his - have more different sections and have this old-internet vibe.

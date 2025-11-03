@@ -41,3 +41,7 @@ a:visited, a:visited code {
     height: 24px;
     fill: currentColor;
   }
+
+  .container {
+  max-width: 800px !important;
+  }
