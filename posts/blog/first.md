@@ -62,6 +62,4 @@ I wouldn't be where I am today without him. I also like his style of blogging a 
 style of his page. I think I want my page to be more like his - have more different sections and have this old-internet vibe.
 Also I love his posts on philosophy, although I fundamentally disagree with him on most of his takes lol.
 3. [levels.io/blog](https://levels.io/blog/) - Peter Levels - very popular guy who makes a lot of money from his personal projects.
-I want to try something similar, on smaller scale of course and while being conscious of the survival-ship bias, 
-but more on that in another post. Anyway his blog posts about his travels in Asia are amazing. I like how his posts
-can kind of show the story of his life.
+His blog posts about his travels in Asia are amazing. I like how his posts can kind of show the story of his life.
