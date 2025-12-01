@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/pico.min.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon.ico">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body  class="container">
+    <header>
+
+   <div class="social-icons">
+    <!-- GitHub -->
+<!--    <a href="https://github.com/KrzysztofCzapla" target="_blank" aria-label="GitHub">-->
+<!--      <svg viewBox="0 0 24 24">-->
+<!--        <path d="M12 0.297c-6.627 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.387-->
+<!--          0.6 0.111 0.82-0.261 0.82-0.577 0-0.285-0.011-1.04-0.017-2.04-3.338 0.726-4.042-1.61-4.042-1.61-->
+<!--          -0.546-1.387-1.333-1.756-1.333-1.756-1.089-0.744 0.083-0.729 0.083-0.729 1.205 0.084 1.839 1.236 1.839 1.236-->
+<!--          1.07 1.834 2.807 1.304 3.492 0.997 0.108-0.775 0.418-1.305 0.762-1.605-2.665-0.303-5.467-1.333-5.467-5.932-->
+<!--          0-1.31 0.469-2.381 1.236-3.221-0.124-0.303-0.536-1.523 0.117-3.176 0 0 1.008-0.322 3.301 1.23-->
+<!--          0.957-0.266 1.983-0.399 3.003-0.404 1.02 0.005 2.047 0.138 3.006 0.404 2.291-1.552 3.297-1.23 3.297-1.23-->
+<!--          0.655 1.653 0.243 2.873 0.12 3.176 0.77 0.84 1.234 1.911 1.234 3.221 0 4.61-2.807 5.625-5.479 5.921-->
+<!--          0.43 0.371 0.814 1.102 0.814 2.222 0 1.606-0.015 2.896-0.015 3.287 0 0.319 0.216 0.694 0.825 0.576-->
+<!--          C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12z"/>-->
+<!--      </svg>-->
+<!--    </a>-->
+
+<!--    &lt;!&ndash; LinkedIn &ndash;&gt;-->
+<!--    <a href="https://www.linkedin.com/in/krzysztof-czapla/" target="_blank" aria-label="LinkedIn">-->
+<!--      <svg viewBox="0 0 24 24">-->
+<!--        <path d="M20.447 20.452h-3.554v-5.569c0-1.327-0.026-3.036-1.849-3.036-->
+<!--          -1.849 0-2.132 1.445-2.132 2.938v5.667H9.356V9h3.414v1.561h0.049-->
+<!--          c0.476-0.9 1.637-1.849 3.368-1.849 3.598 0 4.264 2.368 4.264 5.451v6.289zM5.337 7.433-->
+<!--          c-1.144 0-2.069-0.926-2.069-2.069 0-1.144 0.926-2.069 2.069-2.069s2.069 0.926 2.069 2.069-->
+<!--          c0 1.143-0.926 2.069-2.069 2.069zM7.119 20.452H3.556V9h3.563v11.452zM22.225 0H1.771-->
+<!--          C0.792 0 0 0.771 0 1.723v20.554C0 23.229 0.792 24 1.771 24h20.451c0.978 0 1.778-0.771 1.778-1.723V1.723-->
+<!--          C24 0.771 23.203 0 22.225 0z"/>-->
+<!--      </svg>-->
+<!--    </a>-->
+
+    <!-- Twitter -->
+    <a href="https://x.com/_czapla" target="_blank" aria-label="Twitter">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter-x" viewBox="0 0 16 16">
+      <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+    </svg>
+    </a>
+  </div>
+<h1>
+    <a href="https://czapla.xyz/">Krzysztof Czapla</a>
+  </h1>
+</header>
+    <div>
+        <h1>How to implement a Simple RAG system in Python?</h1>
+<p>Enter Broccoli-RAG</p>
+<h2>What is RAG?</h2>
+<p>Let's say you want to call a LLM and you want to ask it a very
+specific information, that it might not know anything about. For example 
+an internal doc.</p>
+<p>Simple solution might be just putting the whole doc inside the prompt, but 
+what if the doc is too big?</p>
+<p>In that case we might want to give it only a part of that document.
+We can cut that doc into pieces.</p>
+<p>We will store each piece using a vector representation (basically turning text into numbers). 
+Then we will also transform the user's prompt into a vector representation and find the relevant data.</p>
+<p>Then we will feed this data into the actual prompt to the LLM.</p>
+<p><a href="https://aws.amazon.com/what-is/retrieval-augmented-generation/">You can read more about it, for example here</a>.
+I simplified it too much, but you get the general idea.</p>
+<h2>The plan</h2>
+<p>Ok, so let's implement this idea in practice.</p>
+<p>We will create an API with 2 endpoints:
+1) Adding a document to our vector database. We will support PDF and DOCX files only. No need to get too fancy here.
+2) Retrieving the relevant info from the vector DB and feeding it to the LLM and returning its response</p>
+<p>We need:
+- <strong>Python</strong> for writing the code
+- <strong>FastAPI</strong> to write the relevant API endpoints, so we can actually interact with the model
+- <strong>Qdrant</strong> for vector DB
+- <strong>Ollama</strong> to run a LLM model locally without too much hustle
+- <strong>Docker</strong> so the installation of everything is swift and easy</p>
+<h2>The execution</h2>
+<h3>Folder structure:</h3>
+<div class="codehilite"><pre><span></span><code>project
+â”‚   README.md   
+â”‚   requirements.txt   
+â”‚   Makefile
+â”‚   Dockerfile
+â”‚   docker-compose.yaml
+â””â”€â”€â”€src
+    â”‚   .env
+    â”‚   logger.py
+    â”‚   main.py
+    â”‚   rag.py
+    â”‚   settings.py
+    â”‚   vdb.py
+</code></pre></div>
+
+<h3>Docker setup</h3>
+<p>Dockerfile, which will be our base for fastAPI backend, nothing complicated here:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">python:3.10-slim</span>
+
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/src</span>
+
+<span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
+
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="k">RUN</span><span class="w"> </span>apt<span class="w"> </span>update
+<span class="k">RUN</span><span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>make<span class="w"> </span>curl
+
+<span class="k">COPY</span><span class="w"> </span>./src<span class="w"> </span>.
+
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/
+
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span>
+
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8080&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--reload&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--reload-dir&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/src&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--reload-include&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;*.sql&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Now to the docker-compose:</p>
+<p>We will deploy ollama using their public image. I think ollama is great for a simple local presentation,
+I didn't have much problem with it. For something bigger we might think about using vLLM, but we're good.</p>
+<p>The last 4 lines are related to usage of GPU instead of CPU for model calculations.</p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="nt">ollama</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama/ollama:latest</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;11434:11434&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./src/ollama_data:/root/.ollama</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">runtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA_VISIBLE_DEVICES=all</span>
+</code></pre></div>
+
+<p>For Qdrant we will also use their public image:</p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="nt">qdrant</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qdrant/qdrant:latest</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;6333:6333&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./src/qdrant_data:/qdrant/storage</span>
+</code></pre></div>
+
+<p>And finally backend:</p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backend</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./src:/src</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qdrant</span>
+</code></pre></div>
+
+<p>I will also add a Makefile, like a person:</p>
+<div class="codehilite"><pre><span></span><code><span class="nf">up</span><span class="o">:</span>
+<span class="w">    </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<span class="w">    </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>gemma3:4b
+</code></pre></div>
+
+<p>That way we will also pull the relevant model to the ollama that we want to use automatically.</p>
+<p>Infra is ready let's move into the code</p>
+<h3>Python code</h3>
+<p>I added a <code>.env.template</code> file that needs to be copied into a <code>.env</code>:</p>
+<div class="codehilite"><pre><span></span><code>QDRANT_HOST=http://qdrant:6333
+QDRANT_MAIN_COLLECTION_NAME=docs
+LLM_HOST=http://ollama:11434/api/generate
+</code></pre></div>
+
+<p>Notice that instead of localhost we are using <code>qdrant</code> and <code>ollama</code>. It's how docker-compose translates the URLs
+between the containers.</p>
+<p>We will extract these variables using pydantic-settings:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py</span>
+
+<span class="k">class</span> <span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+    <span class="n">qdrant_host</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">qdrant_main_collection_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">llm_host</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span>
+        <span class="n">env_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;.env&quot;</span><span class="p">,</span>
+        <span class="n">env_file_encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
+</code></pre></div>
+
+<p>We will use the <code>settings</code> variable as a singleton object across all the files.</p>
+<hr />
+<p>Lets setup the Virtual DB now:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># vdb.py</span>
+<span class="kn">from</span> <span class="nn">fastembed</span> <span class="kn">import</span> <span class="n">TextEmbedding</span>
+<span class="kn">from</span> <span class="nn">qdrant_client</span> <span class="kn">import</span> <span class="n">QdrantClient</span>
+<span class="kn">from</span> <span class="nn">qdrant_client.http</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="kn">from</span> <span class="nn">src.settings</span> <span class="kn">import</span> <span class="n">settings</span>
+
+<span class="n">embedder</span> <span class="o">=</span> <span class="n">TextEmbedding</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;BAAI/bge-small-en&quot;</span><span class="p">)</span>
+
+<span class="n">collection</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">qdrant_main_collection_name</span>
+<span class="c1"># our singleton object</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">QdrantClient</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">qdrant_host</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">collection_exists</span><span class="p">(</span><span class="n">collection</span><span class="p">):</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">create_collection</span><span class="p">(</span>
+        <span class="n">collection</span><span class="p">,</span>
+        <span class="n">vectors_config</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">VectorParams</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">384</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Distance</span><span class="o">.</span><span class="n">COSINE</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>We are using the fastembed to creating text embeddings - so actually transforming text into a vector representation.
+We will create a default <code>collection</code> if it doesn't exist already. We will create it with size of <code>384</code>, 
+because that's what our embedding model uses. For distance we will be using COSINE approach, as it seems
+to be the best one for semantic search here. There are a few others, but we won't cover them here.</p>
+<hr />
+<p>Let`s create functions to extract texts from PDF and DOCX documents.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># rag.py</span>
+<span class="o">&lt;...&gt;</span>
+
+<span class="k">def</span> <span class="nf">_read_pdf</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">PdfReader</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">))</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">pages</span><span class="p">:</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">extract_text</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span> <span class="nf">_read_docx</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># maybe too &quot;one-liney&quot; but we just read the paragraphs from the file, basically</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Document</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">))</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">]</span>
+
+<span class="o">&lt;...&gt;</span>
+</code></pre></div>
+
+<p>Now how do we turn those list of strings into smaller pieces?
+The LLM doesn't care about the actual length about the text, but
+about the tokens. So lets cut it based on toke number:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">&lt;...&gt;</span>
+<span class="n">ENCODER</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;cl100k_base&quot;</span><span class="p">)</span>
+<span class="n">TOKENS_PER_CHUNK</span> <span class="o">=</span> <span class="mi">250</span>
+
+<span class="k">def</span> <span class="nf">_text_into_chunks</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">ENCODER</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">TOKENS_PER_CHUNK</span>
+            <span class="n">chunk_tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+            <span class="n">chunk_text</span> <span class="o">=</span> <span class="n">ENCODER</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">chunk_tokens</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk_text</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">+=</span> <span class="n">end</span>
+
+    <span class="k">return</span> <span class="n">chunks</span>
+
+<span class="o">&lt;...&gt;</span>
+</code></pre></div>
+
+<p>We used tiktoken here. But we could use anything else.</p>
+<p>Now, let's use all those functions together:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">&lt;...&gt;</span>
+<span class="k">def</span> <span class="nf">_embed</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">embedder</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="n">text</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">insert_into_vdb</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">_read_pdf</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">content_type</span>
+        <span class="o">==</span> <span class="s2">&quot;application/vnd.openxmlformats-officedocument.wordprocessingml.document&quot;</span>
+    <span class="p">):</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">_read_docx</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Wrong file type&quot;</span><span class="p">)</span>
+
+    <span class="n">chunks</span> <span class="o">=</span> <span class="n">_text_into_chunks</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Chunks generated: </span><span class="si">{</span><span class="n">chunks</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">qdrant_main_collection_name</span><span class="p">,</span>
+        <span class="n">models</span><span class="o">.</span><span class="n">Batch</span><span class="p">(</span>
+            <span class="n">ids</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+            <span class="n">vectors</span><span class="o">=</span><span class="p">[</span><span class="n">_embed</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+            <span class="n">payloads</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">chunk</span><span class="p">}</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="o">&lt;...&gt;</span>
+</code></pre></div>
+
+<p>Let's explain step by step:
+First, we check the type of file and use the proper function to extract its contents:</p>
+<div class="codehilite"><pre><span></span><code>    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">_read_pdf</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">content_type</span>
+        <span class="o">==</span> <span class="s2">&quot;application/vnd.openxmlformats-officedocument.wordprocessingml.document&quot;</span>
+    <span class="p">):</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">_read_docx</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Wrong file type&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We then turn this text into chunks, based on tokens:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">chunks</span> <span class="o">=</span> <span class="n">_text_into_chunks</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And finally we add them to the vector database. We assign an unique id to each chunk using uuid.
+We use our <code>_embed()</code> function to turn each chunk into vector representation.
+And most importantly we store the actual text. We need to assign it to each vector,
+we don't want to "de-translate" vectors into text.</p>
+<div class="codehilite"><pre><span></span><code>    <span class="n">client</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">qdrant_main_collection_name</span><span class="p">,</span>
+        <span class="n">models</span><span class="o">.</span><span class="n">Batch</span><span class="p">(</span>
+            <span class="n">ids</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+            <span class="n">vectors</span><span class="o">=</span><span class="p">[</span><span class="n">_embed</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+            <span class="n">payloads</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">chunk</span><span class="p">}</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>What about the search?</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">_search_vdb</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">query_points</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">qdrant_main_collection_name</span><span class="p">,</span>
+        <span class="n">_embed</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">score_threshold</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="n">r</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span> <span class="nf">get_rag_context</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_search_vdb</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We will transform the input text into embedding and query the vector DB. We will limit our results to 3.
+We will also add a score threshold, because we don't want to return anything we find lol.</p>
+<p>The actual API in FastAPI is pretty straightforward since we now have everything we need:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># main.py</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/add-rag-doc&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This endpoint allows upload of WORD and PDF docs.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add_rag_doc</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span><span class="p">):</span>
+    <span class="n">insert_into_vdb</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;success&quot;</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/chat&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;PROMPT: </span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> CONTEXT:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">get_rag_context</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> MAX 50 WORDS&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sending prompt: `</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">` to local model&quot;</span><span class="p">)</span>
+
+    <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gemma3:4b&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span> <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">llm_host</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">model_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_response</span>
+</code></pre></div>
+
+<p>I added the "MAX 50 WORDS" to the prompt so the response is faster, as my GPU is on life-support.</p>
+<h3>That's it</h3>
+<p>Now we can enjoy the fruit of our labour and run <code>make up</code> and go to <code>http://localhost:8080/docs/</code>.</p>
+<p>Two endpoints that we just created will be waiting for us there.</p>
+<p>For my cinephile readers, I uploaded 2 PDF files with synopses of <code>Casablanca</code> and <code>Wall Street</code> movies.</p>
+<p>The result is pretty nice:
+<img alt="Pretty cool, Bateman" src="./static/blog1_image.png" /></p>
+<p>This is it. It's very simple, but it should just showcase the general idea.</p>
+    </div>
+
+</body>
+
+<footer>
+  Powered by
+  <a href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+</footer>
