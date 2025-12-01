@@ -35,10 +35,19 @@ We will create an API with 2 endpoints:
 2) Retrieving the relevant info from the vector DB and feeding it to the LLM and returning its response
 
 We need:
+
 - **Python** for writing the code
+
+
 - **FastAPI** to write the relevant API endpoints, so we can actually interact with the model
+
+
 - **Qdrant** for vector DB
+
+
 - **Ollama** to run a LLM model locally without too much hustle
+
+
 - **Docker** so the installation of everything is swift and easy
 
 ## The execution

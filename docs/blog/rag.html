@@ -76,12 +76,24 @@ I simplified it too much, but you get the general idea.</p>
 <p>We will create an API with 2 endpoints:
 1) Adding a document to our vector database. We will support PDF and DOCX files only. No need to get too fancy here.
 2) Retrieving the relevant info from the vector DB and feeding it to the LLM and returning its response</p>
-<p>We need:
-- <strong>Python</strong> for writing the code
-- <strong>FastAPI</strong> to write the relevant API endpoints, so we can actually interact with the model
-- <strong>Qdrant</strong> for vector DB
-- <strong>Ollama</strong> to run a LLM model locally without too much hustle
-- <strong>Docker</strong> so the installation of everything is swift and easy</p>
+<p>We need:</p>
+<ul>
+<li>
+<p><strong>Python</strong> for writing the code</p>
+</li>
+<li>
+<p><strong>FastAPI</strong> to write the relevant API endpoints, so we can actually interact with the model</p>
+</li>
+<li>
+<p><strong>Qdrant</strong> for vector DB</p>
+</li>
+<li>
+<p><strong>Ollama</strong> to run a LLM model locally without too much hustle</p>
+</li>
+<li>
+<p><strong>Docker</strong> so the installation of everything is swift and easy</p>
+</li>
+</ul>
 <h2>The execution</h2>
 <h3>Folder structure:</h3>
 <div class="codehilite"><pre><span></span><code>project
