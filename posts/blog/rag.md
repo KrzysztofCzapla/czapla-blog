@@ -385,3 +385,7 @@ The result is pretty nice:
 ![Pretty cool, Bateman](https://czapla.xyz/static/gordon_gekko.png)
 
 This is it. It's very simple, but it should just showcase the general idea.
+
+[Here's all the code on Github](https://github.com/KrzysztofCzapla/broccoli-rag)
+
+Thanks for reading. I am still experimenting with this blog, a lot of improvements ahead, but gotta start somewhere lol
