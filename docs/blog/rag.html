@@ -6,6 +6,7 @@
     <title>Krzysztof Czapla</title>
     <link rel="stylesheet" href="https://czapla.xyz//static/styles/pico.min.css">
     <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/codes.css">
     <link rel="icon" href="https://czapla.xyz/static/favicon.ico">
     <meta name="description" content="A simple, minimal blog">
     <meta name="author" content="Krzysztof Czapla">
@@ -224,7 +225,6 @@ to be the best one for semantic search here. There are a few others, but we won'
 <hr />
 <p>Let`s create functions to extract texts from PDF and DOCX documents.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># rag.py</span>
-<span class="o">&lt;...&gt;</span>
 
 <span class="k">def</span> <span class="nf">_read_pdf</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">PdfReader</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">))</span>
@@ -238,15 +238,12 @@ to be the best one for semantic search here. There are a few others, but we won'
 <span class="k">def</span> <span class="nf">_read_docx</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="c1"># maybe too &quot;one-liney&quot; but we just read the paragraphs from the file, basically</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Document</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">))</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">]</span>
-
-<span class="o">&lt;...&gt;</span>
 </code></pre></div>
 
 <p>Now how do we turn those list of strings into smaller pieces?
 The LLM doesn't care about the actual length about the text, but
 about the tokens. So lets cut it based on toke number:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">&lt;...&gt;</span>
-<span class="n">ENCODER</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;cl100k_base&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">ENCODER</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;cl100k_base&quot;</span><span class="p">)</span>
 <span class="n">TOKENS_PER_CHUNK</span> <span class="o">=</span> <span class="mi">250</span>
 
 <span class="k">def</span> <span class="nf">_text_into_chunks</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
@@ -263,14 +260,11 @@ about the tokens. So lets cut it based on toke number:</p>
             <span class="n">start</span> <span class="o">+=</span> <span class="n">end</span>
 
     <span class="k">return</span> <span class="n">chunks</span>
-
-<span class="o">&lt;...&gt;</span>
 </code></pre></div>
 
 <p>We used tiktoken here. But we could use anything else.</p>
 <p>Now, let's use all those functions together:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">&lt;...&gt;</span>
-<span class="k">def</span> <span class="nf">_embed</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">_embed</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">embedder</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="n">text</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">insert_into_vdb</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span><span class="p">):</span>
@@ -296,7 +290,6 @@ about the tokens. So lets cut it based on toke number:</p>
             <span class="n">payloads</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">chunk</span><span class="p">}</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">],</span>
         <span class="p">),</span>
     <span class="p">)</span>
-<span class="o">&lt;...&gt;</span>
 </code></pre></div>
 
 <p>Let's explain step by step:
