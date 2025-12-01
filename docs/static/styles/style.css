@@ -11,7 +11,7 @@
     margin-bottom: 10px;
    }
 
-a:visited, a:visited code {
+a:visited, a:visited code, a {
     color: var(--link-color);
 }
 
