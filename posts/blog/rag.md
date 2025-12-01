@@ -46,18 +46,18 @@ We need:
 ### Folder structure:
 ```
 project
-│   README.md   
-│   requirements.txt   
-│   Makefile
-│   Dockerfile
-│   docker-compose.yaml
-└───src
-    │   .env
-    │   logger.py
-    │   main.py
-    │   rag.py
-    │   settings.py
-    │   vdb.py
+   - README.md   
+   - requirements.txt   
+   - Makefile
+   - Dockerfile
+   - docker-compose.yaml
+   - ./src
+       - .env
+       - logger.py
+       - main.py
+       - rag.py
+       - settings.py
+       - vdb.py
 ```
 
 ### Docker setup
@@ -373,6 +373,6 @@ Two endpoints that we just created will be waiting for us there.
 For my cinephile readers, I uploaded 2 PDF files with synopses of `Casablanca` and `Wall Street` movies.
 
 The result is pretty nice:
-![Pretty cool, Bateman](./static/blog1_image.png)
+![Pretty cool, Bateman](https://czapla.xyz/static/gordon_gekko.png)
 
 This is it. It's very simple, but it should just showcase the general idea.

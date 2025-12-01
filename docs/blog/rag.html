@@ -85,18 +85,18 @@ I simplified it too much, but you get the general idea.</p>
 <h2>The execution</h2>
 <h3>Folder structure:</h3>
 <div class="codehilite"><pre><span></span><code>project
-â”‚   README.md   
-â”‚   requirements.txt   
-â”‚   Makefile
-â”‚   Dockerfile
-â”‚   docker-compose.yaml
-â””â”€â”€â”€src
-    â”‚   .env
-    â”‚   logger.py
-    â”‚   main.py
-    â”‚   rag.py
-    â”‚   settings.py
-    â”‚   vdb.py
+   - README.md   
+   - requirements.txt   
+   - Makefile
+   - Dockerfile
+   - docker-compose.yaml
+   - ./src
+       - .env
+       - logger.py
+       - main.py
+       - rag.py
+       - settings.py
+       - vdb.py
 </code></pre></div>
 
 <h3>Docker setup</h3>
@@ -374,7 +374,7 @@ We will also add a score threshold, because we don't want to return anything we 
 <p>Two endpoints that we just created will be waiting for us there.</p>
 <p>For my cinephile readers, I uploaded 2 PDF files with synopses of <code>Casablanca</code> and <code>Wall Street</code> movies.</p>
 <p>The result is pretty nice:
-<img alt="Pretty cool, Bateman" src="./static/blog1_image.png" /></p>
+<img alt="Pretty cool, Bateman" src="https://czapla.xyz/static/gordon_gekko.png" /></p>
 <p>This is it. It's very simple, but it should just showcase the general idea.</p>
     </div>
 
