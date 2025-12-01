@@ -44,7 +44,7 @@ We need:
 ## The execution
 
 ### Folder structure:
-```commandline
+```
 project
 │   README.md   
 │   requirements.txt   
@@ -206,7 +206,6 @@ Let`s create functions to extract texts from PDF and DOCX documents.
 
 ```python
 # rag.py
-<...>
 
 def _read_pdf(file_bytes: bytes) -> List[str]:
     reader = PdfReader(io.BytesIO(file_bytes))
@@ -221,13 +220,13 @@ def _read_docx(file_bytes: bytes) -> List[str]:
     # maybe too "one-liney" but we just read the paragraphs from the file, basically
     return [p.text for p in Document(io.BytesIO(file_bytes)).paragraphs]
 
-<...>
+
 ```
 Now how do we turn those list of strings into smaller pieces?
 The LLM doesn't care about the actual length about the text, but
 about the tokens. So lets cut it based on toke number:
 ```python
-<...>
+
 ENCODER = tiktoken.get_encoding("cl100k_base")
 TOKENS_PER_CHUNK = 250
 
@@ -246,13 +245,13 @@ def _text_into_chunks(contents: List[str]):
 
     return chunks
 
-<...>
+
 ```
 We used tiktoken here. But we could use anything else.
 
 Now, let's use all those functions together:
 ```python
-<...>
+
 def _embed(text: str):
     return list(embedder.embed([text]))[0]
 
@@ -279,7 +278,7 @@ def insert_into_vdb(file: UploadFile):
             payloads=[{"text": chunk} for chunk in chunks],
         ),
     )
-<...>
+
 ```
 Let's explain step by step:
 First, we check the type of file and use the proper function to extract its contents:
