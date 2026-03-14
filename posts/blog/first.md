@@ -4,8 +4,6 @@ description: Why I'm starting to blog and my blogging engine
 date: 2025-09-24
 ---
 
-# First Blog Post
-
 This is kind of a test post, so don't overanalyze this please lol
 
 ## My first experience with minimal blogs

@@ -3,7 +3,6 @@ title: How to implement a Simple RAG in Python?
 description: a Simple RAG implementation in Python using Qdrant, OLlama and FastAPI.
 date: 2025-12-01
 ---
-# How to implement a Simple RAG system in Python?
 
 Enter Broccoli-RAG
 
