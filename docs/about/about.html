@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/codes.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/fonts.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon4.png">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body class="bg-black">
+<div class="bg-black min-h-screen flex flex-col text-white">
+
+<header class="fixed top-0 left-0 right-0 z-40 bg-black border-white border-b">
+  <div class="container flex items-center justify-between mx-auto px-4 py-4 max-w-[1200px]">
+
+    <a href="/" class="border-b-2 border-green-500 hover:bg-green-500 font-bold">KC</a>
+
+    <input id="menu-toggle" type="checkbox" class="hidden peer">
+
+    <label for="menu-toggle" class="block md:hidden cursor-pointer">
+      <div class="flex flex-col justify-center w-5 h-5">
+        <span class="w-5 h-0.5 bg-white block"></span>
+        <span class="w-5 h-0.5 bg-white block my-1"></span>
+        <span class="w-5 h-0.5 bg-white block"></span>
+      </div>
+    </label>
+
+    <nav class="absolute top-full left-0 w-full bg-black border-t border-white hidden peer-checked:block md:static md:block md:w-auto md:border-0">
+      <ul class="flex flex-col md:flex-row border-2 border-white md:border-2 font-bold">
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/" class="block hover:bg-green-500 text-xs py-2 px-4">HOME</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/about/about" class="block hover:bg-green-500 text-xs py-2 px-4">ABOUT</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/blog" class="block hover:bg-green-500 text-xs py-2 px-4">BLOG</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/projects" class="block hover:bg-green-500 text-xs py-2 px-4 font-[1100]">PROJECTS</a>
+        </li>
+
+        <li>
+          <a href="/contact/contact" class="block hover:bg-green-500 text-xs py-2 px-4">CONTACT</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main class="mt-20 pt-2 container mx-auto px-4 py-4 md:p-8 max-w-[1200px]">
+    <header>
+        <div class="flex">
+            <h1 class="text-2xl sm:text-3xl border-green-500 border-b-4 pb-1 break-words">
+                About Me
+            </h1>
+        </div>
+        <p class="pt-1 pb-5 text-sm sm:text-base">2026-03-14</p>
+    </header>
+
+    <article class="max-w-full prose prose-invert max-w-none
+                    prose-pre:overflow-x-auto
+                    prose-pre:max-w-full
+                    prose-code:whitespace-pre
+                    prose-img:max-w-full
+                    prose-table:block
+                    prose-table:overflow-x-auto">
+        <p>My name is Krzysztof Czapla. Christopher - if you don't speak Polish.</p>
+<p>I am from Poland. I work as Backend/Python Developer and study Computer Science.</p>
+<p>I like technology, movies, philosophy and history.</p>
+<p>This is my personal page (still work in progress). I plan to write articles about technologies and other things.</p>
+    </article>
+
+</main>
+
+<footer class="justify-center align-center flex mb-5">
+    <p>
+        Powered by
+        <a class="border-b border-green-500" href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+    </p>
+</footer>
+
+</div>
+</body>
