@@ -42,7 +42,7 @@ Now, technically if someone sends a request from another site to your site, the 
 Unfortunately, it's not that simple. While the attacker won't get access to the response, the request will still get
 to the service and execute all the logic. So, for example, if an attacker sends POST request to your endpoint
 that's gonna delete a resource, the resource will be deleted, just no response will be sent back.
-This will be mitigated with using `SameSite=Strict` `policy on the JWT cookies, but more on that later.
+This will be mitigated with using `SameSite=Strict` policy on the JWT cookies, but more on that later.
 
 It also does nothing to protect from requests sent from outside the browser.
 
