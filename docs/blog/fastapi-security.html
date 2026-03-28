@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/codes.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/blog-style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/fonts.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon4.png">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body class="bg-black">
+<div class="bg-black min-h-screen flex flex-col text-white">
+
+<header class="fixed top-0 left-0 right-0 z-40 bg-black border-white border-b">
+  <div class="container flex items-center justify-between mx-auto px-4 py-4 max-w-[1200px]">
+
+    <a href="/" class="border-b-2 border-green-500 hover:bg-green-500 font-bold">KC</a>
+
+    <input id="menu-toggle" type="checkbox" class="hidden peer">
+
+    <label for="menu-toggle" class="block md:hidden cursor-pointer">
+      <div class="flex flex-col justify-center w-5 h-5">
+        <span class="w-5 h-0.5 bg-white block"></span>
+        <span class="w-5 h-0.5 bg-white block my-1"></span>
+        <span class="w-5 h-0.5 bg-white block"></span>
+      </div>
+    </label>
+
+    <nav class="absolute top-full left-0 w-full bg-black border-t border-white hidden peer-checked:block md:static md:block md:w-auto md:border-0">
+      <ul class="flex flex-col md:flex-row border-2 border-white md:border-2 font-bold">
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/" class="block hover:bg-green-500 text-xs py-2 px-4">HOME</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/about/about" class="block hover:bg-green-500 text-xs py-2 px-4">ABOUT</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/blog" class="block hover:bg-green-500 text-xs py-2 px-4">BLOG</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/projects" class="block hover:bg-green-500 text-xs py-2 px-4 font-[1100]">PROJECTS</a>
+        </li>
+
+        <li>
+          <a href="/contact/contact" class="block hover:bg-green-500 text-xs py-2 px-4">CONTACT</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main class="mt-20 pt-2 container mx-auto px-4 py-4 md:p-8 max-w-[1200px]">
+    <header>
+        <div class="flex">
+            <h1 class="text-2xl sm:text-3xl border-green-500 border-b-4 pb-1 break-words">
+                Security in FastAPI
+            </h1>
+        </div>
+        <p class="pt-1 pb-5 text-sm sm:text-base">2026-03-28</p>
+    </header>
+
+    <article class="max-w-full prose prose-invert max-w-none blog-content
+                    prose-pre:overflow-x-auto
+                    prose-pre:max-w-full
+                    prose-code:whitespace-pre
+                    prose-img:max-w-full
+                    prose-table:block
+                    prose-table:overflow-x-auto">
+        <h1>Intro</h1>
+<p>Many people often overlook security in FastAPI. Despite it coming without the <code>batteries includedâ„˘</code>, it's not really
+complicated to create a secure microservice quickly. This article is a quick check-list of things to implement to sleep
+better at night.</p>
+<p>Note:
+<code>This guide is not a step-by-step booklet on what to do exactly, but just a "checklist" of things you need to keep in mind with examples.</code></p>
+<h1>Authentication</h1>
+<h2>CORS</h2>
+<p>CORS (Cross-Origin Resource Sharing) is a mechanism/way to reject requests from sites that do not share your domain.
+It also has a few other options, for example you can specify the HTTP methods to allow/reject.</p>
+<p><a href="https://fastapi.tiangolo.com/tutorial/cors/#use-corsmiddleware">In FastAPI it comes already implemented</a>, 
+you just need to add the middleware:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span> <span class="nn">fastapi.middleware.cors</span> <span class="kn">import</span> <span class="n">CORSMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+        <span class="n">CORSMiddleware</span><span class="p">,</span>
+        <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;example.com&quot;</span><span class="p">],</span>
+        <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE&quot;</span><span class="p">],</span>
+        <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>Now, technically if someone sends a request from another site to your site, the browser should reject it, right?</p>
+<p>Unfortunately, it's not that simple. While the attacker won't get access to the response, the request will still get
+to the service and execute all the logic. So, for example, if an attacker sends POST request to your endpoint
+that's gonna delete a resource, the resource will be deleted, just no response will be sent back.
+This will be mitigated with using <code>SameSite=Strict</code> `policy on the JWT cookies, but more on that later.</p>
+<p>It also does nothing to protect from requests sent from outside the browser.</p>
+<h2>JWT</h2>
+<p>JWT (JSON Web Tokens) is a standard for transmitting information securely.</p>
+<p>We will store 2 cookies in the domain of our service:
+- Access Token - 15 minutes lifetime - it will be used to access the endpoints. It is short-lived so if someone steals it, we won't have a problem
+- Refresh Token - X days lifetime - used to get new access tokens. We will rotate this one each time we generate a new access token,
+so if someone steals it and both attacker and the user will try to use it, we will know it was compromised.</p>
+<p>This is not built-in in FastAPI, but there are nice libraries that we can use. The tokens are generated using a secret key.</p>
+<p>The libraries we use, except the obvious ones:
+<code>python-jose passlib[bcrypt]</code></p>
+<p>Full example in one file:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">Cookie</span>
+<span class="kn">from</span> <span class="nn">jose</span> <span class="kn">import</span> <span class="n">jwt</span><span class="p">,</span> <span class="n">JWTError</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">passlib.context</span> <span class="kn">import</span> <span class="n">CryptContext</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">Boolean</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span><span class="p">,</span> <span class="n">DeclarativeBase</span><span class="p">,</span> <span class="n">Mapped</span><span class="p">,</span> <span class="n">mapped_column</span><span class="p">,</span> <span class="n">Session</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="c1"># --- config ---</span>
+<span class="n">SECRET</span> <span class="o">=</span> <span class="s2">&quot;super-secret&quot;</span>
+<span class="n">ALGO</span> <span class="o">=</span> <span class="s2">&quot;HS256&quot;</span>
+<span class="n">ACCESS_EXPIRE_MIN</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">REFRESH_EXPIRE_DAYS</span> <span class="o">=</span> <span class="mi">7</span>
+
+<span class="c1"># --- auth utils stuff ---</span>
+<span class="n">pwd</span> <span class="o">=</span> <span class="n">CryptContext</span><span class="p">(</span><span class="n">schemes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bcrypt&quot;</span><span class="p">],</span> <span class="n">deprecated</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_access</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span>
+        <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span>
+        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">ACCESS_EXPIRE_MIN</span><span class="p">),</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;access&quot;</span>
+    <span class="p">},</span> <span class="n">SECRET</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">ALGO</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_refresh</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">jti</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span>
+        <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span>
+        <span class="s2">&quot;jti&quot;</span><span class="p">:</span> <span class="n">jti</span><span class="p">,</span>
+        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">REFRESH_EXPIRE_DAYS</span><span class="p">),</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;refresh&quot;</span>
+    <span class="p">},</span> <span class="n">SECRET</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">ALGO</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">token</span><span class="p">,</span> <span class="n">jti</span>
+
+<span class="c1"># --- main logic ---</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">Response</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">LoginRequestBody</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">)):</span>
+    <span class="c1"># first verify the password and everything here of course</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="n">access</span> <span class="o">=</span> <span class="n">create_access</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">refresh</span><span class="p">,</span> <span class="n">jti</span> <span class="o">=</span> <span class="n">create_refresh</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">RefreshToken</span><span class="p">(</span>
+        <span class="n">jti</span><span class="o">=</span><span class="n">jti</span><span class="p">,</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span>
+        <span class="n">expires_at</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">REFRESH_EXPIRE_DAYS</span><span class="p">),</span>
+        <span class="n">used</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span> <span class="n">access</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span> <span class="n">refresh</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;logged in&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/refresh&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">Response</span><span class="p">,</span> <span class="n">refresh_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Cookie</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">refresh_token</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">SECRET</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="n">ALGO</span><span class="p">])</span>
+        <span class="n">jti</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;jti&quot;</span><span class="p">]</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;sub&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="n">JWTError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+
+    <span class="n">token_db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RefreshToken</span><span class="p">,</span> <span class="n">jti</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token_db</span> <span class="ow">or</span> <span class="n">token_db</span><span class="o">.</span><span class="n">used</span> <span class="ow">or</span> <span class="n">token_db</span><span class="o">.</span><span class="n">expires_at</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">():</span>
+        <span class="c1"># Here we could implement more logic regarding the detection. Maybe logging/alerting.</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="s2">&quot;reuse detected or invalid&quot;</span><span class="p">)</span>
+
+    <span class="c1"># rotate</span>
+    <span class="n">token_db</span><span class="o">.</span><span class="n">used</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">new_refresh</span><span class="p">,</span> <span class="n">new_jti</span> <span class="o">=</span> <span class="n">create_refresh</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">RefreshToken</span><span class="p">(</span>
+        <span class="n">jti</span><span class="o">=</span><span class="n">new_jti</span><span class="p">,</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span>
+        <span class="n">expires_at</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">REFRESH_EXPIRE_DAYS</span><span class="p">),</span>
+        <span class="n">used</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="n">new_access</span> <span class="o">=</span> <span class="n">create_access</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span> <span class="n">new_access</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span> <span class="n">new_refresh</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;refreshed&quot;</span><span class="p">}</span>
+
+
+<span class="c1"># Example endpoint &quot;protected&quot; endpoint</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/me&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Cookie</span><span class="p">(</span><span class="kc">None</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">access_token</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">SECRET</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="n">ALGO</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;sub&quot;</span><span class="p">]}</span>
+    <span class="k">except</span> <span class="n">JWTError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Important thing here is:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span> <span class="n">new_access</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+<span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span> <span class="n">new_refresh</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">samesite</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We NEED to set the <code>httponly=True</code> and <code>samesite="strict"</code>, so we are saved from CSRF and XSS attacks.</p>
+<p>BTW - treat the above code as a mocky way to showcase the general logic. Every service is different so this doesn't include
+actual verification of the user or usage of modern python standard (async, not-using SQLite in PROD etc).</p>
+<p>This approach assumes the client is on the same domain as the backend. If that's not the case you need to lower the strictness
+of JWT cookies and implement CRSF tokens. You can use a package like <a href="https://pypi.org/project/fastapi-csrf-protect/">fastapi-csrf-protect</a>.</p>
+<h1>DB</h1>
+<h2>Password hashing</h2>
+<p>To keep the DB safe - don't store passwords as plain text. You must hash them. That way even if someone gets access to your DB,
+no password will be leaked.</p>
+<p>We can utilize the previously used <code>passlib</code> library.</p>
+<p>A short example would be:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">passlib.context</span> <span class="kn">import</span> <span class="n">CryptContext</span>
+
+<span class="n">pwd_context</span> <span class="o">=</span> <span class="n">CryptContext</span><span class="p">(</span><span class="n">schemes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bcrypt&quot;</span><span class="p">],</span> <span class="n">deprecated</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+
+<span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;ilovehotelsbecauseihatemylife&quot;</span>
+<span class="n">hashed</span> <span class="o">=</span> <span class="n">pwd_context</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+
+<span class="n">is_valid</span> <span class="o">=</span> <span class="n">pwd_context</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="s2">&quot;ilovehotelsbecauseihatemylife&quot;</span><span class="p">,</span> <span class="n">hashed</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Everything happens automatically here, you don't need to specify salt or a secret key.</p>
+<h2>Maybe don't use password?</h2>
+<p>Storing password comes with an overhead. You may want to completely opt-out of storing password of users.
+Even strong hashing mechanism can be broken.</p>
+<p>There are 2 non-conflicting ways to do skip storing passwords:
+- Let users login/register via email - Very straightforward, instead of requiring a password when logging in, just send
+an email to the user with a link that will generate new JWT cookies
+- Use OAuth2 - This will allow users to login using their accounts from external providers like Google.</p>
+<p>In my projects I often use both to allow users the maximum freedom. If you integrate your JWT cookies with OAuth2 and emails
+well then everything goes very smoothly.</p>
+<h2>SQL Injection</h2>
+<p>SQL injection is a situation in which an attacher <code>injects</code> their own SQL code/command into your query. Example:</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="o">...</span><span class="p">)):</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;example.db&quot;</span><span class="p">)</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+    <span class="c1"># Vulnerable to SQL Injection</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT * FROM users WHERE username = &#39;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+</code></pre></div>
+
+<p>If the <code>username</code> query equals <code>' OR '1'='1</code> then the attacker would get all the users data.</p>
+<p>Of course this is a very naive example.</p>
+<p>To avoid this use an ORM (like SQLAlchemy or Tortoise-ORM) or parameterized queries.</p>
+<h2>Network</h2>
+<p>A good idea might be to not expose your DB to the internet at all. If you keep your DB in the same server as your service,
+you might only expose it internally. That way the service will be able to use it, but no one will be able to connect
+from the outside.</p>
+<p>Of course, usually microservices are separated from the DB server, so they can scale horizontally.</p>
+<h1>DDOS protection/Rate limiting</h1>
+<p>To protect from attacks that send a lots of requests at the same time you might want to implement limits of how many times a user/ip adress
+can send a request per minute/hour.</p>
+<p>Short example:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">slowapi</span> <span class="kn">import</span> <span class="n">Limiter</span>
+<span class="kn">from</span> <span class="nn">slowapi.util</span> <span class="kn">import</span> <span class="n">get_remote_address</span>
+<span class="kn">from</span> <span class="nn">slowapi.errors</span> <span class="kn">import</span> <span class="n">RateLimitExceeded</span>
+<span class="kn">from</span> <span class="nn">slowapi.middleware</span> <span class="kn">import</span> <span class="n">SlowAPIMiddleware</span>
+<span class="kn">from</span> <span class="nn">fastapi.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="n">limiter</span> <span class="o">=</span> <span class="n">Limiter</span><span class="p">(</span><span class="n">key_func</span><span class="o">=</span><span class="n">get_remote_address</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">limiter</span> <span class="o">=</span> <span class="n">limiter</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">SlowAPIMiddleware</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">exception_handler</span><span class="p">(</span><span class="n">RateLimitExceeded</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rate_limit_handler</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">RateLimitExceeded</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">429</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">})</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@limiter</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="s2">&quot;5/minute&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">limiter</span> <span class="o">=</span> <span class="n">Limiter</span><span class="p">(</span><span class="n">key_func</span><span class="o">=</span><span class="n">get_remote_address</span><span class="p">)</span>
+</code></pre></div>
+
+<p>the <code>key_func</code> here can be overriden to for example limit based on a user and not an IP adress.</p>
+<p>Of course this is never enough to protect yourelf from a DDOS attack. to actually protect from that
+you will probably need an external provider's help. </p>
+<p>You can try to implement a cloudflare verification protection or use a CDN.
+In the most popular cloud providers there are some tools that use machine learning to detect those kinds of requests
+and they will block them before they can get to your app.</p>
+<h1>Miscellaneous</h1>
+<p>Other important aspects:
+- Never store secrets in the code. No matter if it's only for development or internal, always use a SecretManager or at least
+an <code>.env</code> file.
+- Always use HTTPS. You can easily set that up. For example using letsencrypt + nginx. If you use docker/docker-compose
+you can implement this using just docker-compose file and specifying the correct images.</p>
+<h1>Outro</h1>
+<p>That's pretty much it, there are not that many things you need to watch out for actually if you count them.</p>
+<p>Thanks for reading.</p>
+    </article>
+
+</main>
+
+<footer class="justify-center align-center flex mb-5">
+    <p>
+        Powered by
+        <a class="border-b border-green-500" href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+    </p>
+</footer>
+
+</div>
+</body>
