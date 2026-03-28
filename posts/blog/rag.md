@@ -1,6 +1,6 @@
 ---
-title: How to implement a Simple RAG in Python?
-description: a Simple RAG implementation in Python using Qdrant, OLlama and FastAPI.
+title: How to implement a simple RAG in Python?
+description: a simple RAG implementation in Python using Qdrant, Ollama and FastAPI.
 date: 2025-12-01
 ---
 

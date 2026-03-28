@@ -1,12 +1,10 @@
-body {
-    @font-face {
-        font-family: 'JetBrains Mono';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2') format('woff2');
-        unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-    }
-    font-family: 'JetBrains Mono', monospace;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    background-color: #000; /* black background */
+    color: #fff; /* white text */
+    line-height: 1.5;
+    letter-spacing: 0.5px;
 }
