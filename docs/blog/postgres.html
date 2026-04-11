@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/codes.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/blog-style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/fonts.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon4.png">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body class="bg-black">
+<div class="bg-black min-h-screen flex flex-col text-white">
+
+<header class="fixed top-0 left-0 right-0 z-40 bg-black border-white border-b">
+  <div class="container flex items-center justify-between mx-auto px-4 py-4 max-w-[1200px]">
+
+    <a href="/" class="border-b-2 border-green-500 hover:bg-green-500 font-bold">KC</a>
+
+    <input id="menu-toggle" type="checkbox" class="hidden peer">
+
+    <label for="menu-toggle" class="block md:hidden cursor-pointer">
+      <div class="flex flex-col justify-center w-5 h-5">
+        <span class="w-5 h-0.5 bg-white block"></span>
+        <span class="w-5 h-0.5 bg-white block my-1"></span>
+        <span class="w-5 h-0.5 bg-white block"></span>
+      </div>
+    </label>
+
+    <nav class="absolute top-full left-0 w-full bg-black border-t border-white hidden peer-checked:block md:static md:block md:w-auto md:border-0">
+      <ul class="flex flex-col md:flex-row border-2 border-white md:border-2 font-bold">
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/" class="block hover:bg-green-500 text-xs py-2 px-4">HOME</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/about/about" class="block hover:bg-green-500 text-xs py-2 px-4">ABOUT</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/blog" class="block hover:bg-green-500 text-xs py-2 px-4">BLOG</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/projects" class="block hover:bg-green-500 text-xs py-2 px-4 font-[1100]">PROJECTS</a>
+        </li>
+
+        <li>
+          <a href="/contact/contact" class="block hover:bg-green-500 text-xs py-2 px-4">CONTACT</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main class="mt-20 pt-2 container mx-auto px-4 py-4 md:p-8 max-w-[1200px]">
+    <header>
+        <div class="flex">
+            <h1 class="text-2xl sm:text-3xl border-green-500 border-b-4 pb-1 break-words">
+                PostgreSQL setup for simple python projects
+            </h1>
+        </div>
+        <p class="pt-1 pb-5 text-sm sm:text-base">2026-04-11</p>
+    </header>
+
+    <article class="max-w-full prose prose-invert max-w-none blog-content
+                    prose-pre:overflow-x-auto
+                    prose-pre:max-w-full
+                    prose-code:whitespace-pre
+                    prose-img:max-w-full
+                    prose-table:block
+                    prose-table:overflow-x-auto">
+        <h1>Intro</h1>
+<p>This is a guide on how to set up PostgreSQL using Docker (with Compose) and PGBouncer. I assume you know basic Docker and PostgreSQL.</p>
+<p>The setup is for a framework-agnostic python code, I personally use it mostly with FastAPI apps.
+If you want to use it with Django, you still can, but keep in mind that Django has some our functionalities already built-in, for example extension handling or migrations.</p>
+<p><strong>Note</strong>: To keep this article short, we will skip the very basic stuff like installing python packages or storing secrets in a safe way.
+So, if you see any passwords stored as plain text in commitable files here, do not panic.</p>
+<p>Our setup has the following benefits:</p>
+<ol>
+<li><strong>Connection Pooler</strong> - we don't have to worry about the number of concurrent connections, this will take care of it</li>
+<li><strong>Automatic extension download and triggers setup</strong> - If we don't use something like Django, this will come in handy</li>
+<li><strong>Small and easy to change</strong></li>
+</ol>
+<p>Also let's list tools that we will use:</p>
+<ol>
+<li><strong>PostgreSQL &amp; Python</strong>, duh</li>
+<li><strong>PGBouncer</strong> - connection pooler/load balancer </li>
+<li><strong>Docker with Compose</strong> - for creating containers and images</li>
+<li><strong>DBMate</strong> - lightweight migrations manager</li>
+<li><strong>PugSQL</strong> - Python interface to connect to the database, under the hood it uses SQLAlchemy connection engine</li>
+</ol>
+<h1>PostgreSQL</h1>
+<p>First, lets create the DB server itself. To do that create <code>docker-compose.yaml</code> file like that:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_user</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_pass</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;5432:5432&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgdata:/var/lib/postgresql/data</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./db/db_init:/docker-entrypoint-initdb.d</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./db/postgresql.conf:/etc/postgresql/postgresql.conf</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./db/backus/:/backups/</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;postgres&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;config_file=/etc/postgresql/postgresql.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pgdata</span><span class="p">:</span>
+</code></pre></div>
+
+<p>I think everything here is pretty much standard Docker practices. Of course we should be taking the postgres password from a secrets file, but again, we will skip it to keep this post short.</p>
+<p>Also, as you can see, looking at the volumes, we will have a dedicated <code>db</code> folder to keep our configuration and initialization files.</p>
+<p>We also override the start command:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;postgres&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;config_file=/etc/postgresql/postgresql.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p>We do that to specify which config file postgres should use when starting, so we can change it.</p>
+<p>Now, let's create the <code>db</code> folder and inside <code>db_init</code> folder. Let's also create <code>db/postgresql.conf</code> file:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">listen_addresses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="sc">&#39;*&#39;</span>
+<span class="nx">max_connections</span><span class="p">=</span><span class="mi">100</span>
+</code></pre></div>
+
+<p>There is a long list of things we can specify here, let's keep it short for now. But it's nice to have it so you can easily change anything you want later.</p>
+<h2>(Optional) Installation of extensions and other scripts on initialization</h2>
+<p>If you'd like to install any extension, you can do it in the <code>db_init</code> folder. All the files here will run on first database initialization.</p>
+<p>Let's create <code>extensions.sql</code>:</p>
+<div class="codehilite"><pre><span></span><code>CREATE EXTENSION IF NOT EXISTS &quot;pg_stat_statements&quot;;
+</code></pre></div>
+
+<p>This will auto-install <code>pg_stat_statements</code>, which is used for storing statistics of our sql queries and other stuff.</p>
+<p>You can do the same for any custom functions you would like to create automatically, <code>triggers.sql</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">FUNCTION</span><span class="w"> </span><span class="n">set_updated_at</span><span class="p">()</span>
+<span class="k">RETURNS</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="err">$$</span>
+<span class="k">BEGIN</span>
+<span class="w">    </span><span class="k">NEW</span><span class="p">.</span><span class="n">updated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOW</span><span class="p">();</span>
+<span class="w">    </span><span class="k">RETURN</span><span class="w"> </span><span class="k">NEW</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+<span class="err">$$</span><span class="w"> </span><span class="k">LANGUAGE</span><span class="w"> </span><span class="n">plpgsql</span><span class="p">;</span>
+</code></pre></div>
+
+<h1>PGBouncer</h1>
+<p>Now, having this setup we could already connect to our DB, but we want to put a connection pooler between our services and the DB server.</p>
+<p>Why? Imagine that we have maximum of 100 concurrent connections but our services create 120 connections at the same time.
+Some of them would fail, which is far from ideal.</p>
+<p>To mitigate this issue we can add a connection pooler, which will keep the extra connections in a "queue" and eventually it will connect them
+to the DB server so they will not fail.</p>
+<p>To add PGBouncer, let's add its container to the <code>docker-compose.yaml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="w">    </span><span class="nt">pgbouncer</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgbouncer</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edoburu/pgbouncer:v1.25.1-p0</span>
+<span class="w">        </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+<span class="w">        </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./db/pgbouncer:/etc/pgbouncer</span>
+<span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;6432:6432&quot;</span>
+</code></pre></div>
+
+<p>As you can see we will also add some setups files to the <code>db</code> folder.</p>
+<p>Regarding the ports - we will use other ports to distinct this from the normal postgres server.</p>
+<p>Let's create <code>db/pgbouncer/pgbouncer.ini</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">[databases]</span>
+<span class="na">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">host=postgres port=5432 dbname=main user=postgres_user password=postgres_pass</span>
+
+<span class="k">[pgbouncer]</span>
+<span class="na">listen_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="na">listen_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6432</span>
+<span class="na">auth_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">md5</span>
+<span class="na">auth_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/etc/pgbouncer/userlist.txt</span>
+<span class="na">pool_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">transaction</span>
+<span class="na">max_client_conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500</span>
+<span class="na">default_pool_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span>
+<span class="na">reserve_pool_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20</span>
+<span class="na">reserve_pool_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+<span class="na">server_idle_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
+<span class="na">client_login_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+<span class="na">query_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">admin_users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">postgres_user</span>
+<span class="na">logfile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/pgbouncer/pgbouncer.log</span>
+<span class="na">pidfile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/run/pgbouncer/pgbouncer.pid</span>
+</code></pre></div>
+
+<p>In the first section we specify how to connect to the DB and in the second one we actually specify the PGBouncer settings.</p>
+<p>As you can see we wll allow maximum of 500 concurrent connections, while the DB itself only accepts 100. Some clients will wait for a pool slot until it is available.</p>
+<p>Let's also create the userlist.txt:</p>
+<div class="codehilite"><pre><span></span><code>&quot;postgres_user&quot; &quot;postgres_pass&quot;
+</code></pre></div>
+
+<h1>Connecting via Python</h1>
+<p>First we need to create a Dockerfile and add it to the docker-compose file. I assume you know how to do this.</p>
+<h3>PugSQL</h3>
+<p><a href="https://pugsql.org/">PugSQL</a> is a nice library that allows us to write queries in SQL files.</p>
+<p>First we need to specify the folder with our queries and then connect to the DB.</p>
+<p>Once we have our app running, we can connect it to the DB using this connection string, <code>db.py</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">pugsql</span>
+
+<span class="n">queries</span> <span class="o">=</span> <span class="n">pugsql</span><span class="o">.</span><span class="n">module</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;queries/&quot;</span><span class="p">)</span>
+<span class="n">queries</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;postgresql://postgres_user:postgres_pass@pgbouncer:6432/main&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>As you can see we are connecting to the pgbouncer on port 6432, we are directly using <code>pgbouncer</code> as the URL because
+in docker compose you can specify URL by a container's name.</p>
+<p>To execute any queries, you first need to create one in the <code>queries</code> folder, <code>first.sql</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- :name simple :scalar</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p>You specify the name of the query using SQL comments.</p>
+<p>And then in python:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">app.db</span> <span class="kn">import</span> <span class="n">queries</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">queries</span><span class="o">.</span><span class="n">simple</span><span class="p">())</span>
+<span class="o">&gt;&gt;</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3>Migrations</h3>
+<p>AS you can see we haven't even created any tables in our DB. To do that we can use DBMate. We will use the Docker version so we dont have to install anything locally.</p>
+<p>We first will write manual migrations and then DBMate will execute them. First we need to create migration file by executing:
+<code>docker run --rm -v $(pwd)/db:/db ghcr.io/amacneil/dbmate new create_users_table</code></p>
+<p>Now <code>migrations</code> folder should be created with a new file like: <code>1323123131_create_users_table.sql</code></p>
+<p>Let's write a basic migration in this file:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">basic_table</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="k">GENERATED</span><span class="w"> </span><span class="n">ALWAYS</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">basic_table_pk</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p>And now let's apply:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">docker</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">--</span><span class="n">rm</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="o">-</span><span class="n">v</span><span class="w"> </span><span class="err">$</span><span class="p">(</span><span class="n">pwd</span><span class="p">)</span><span class="o">/</span><span class="nl">db</span><span class="p">:</span><span class="o">/</span><span class="n">db</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="o">-</span><span class="n">w</span><span class="w"> </span><span class="o">/</span><span class="n">db</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="o">--</span><span class="n">network</span><span class="w"> </span><span class="o">&lt;</span><span class="n">your</span><span class="w"> </span><span class="n">docker</span><span class="w"> </span><span class="n">compose</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="n">here</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="o">-</span><span class="n">e</span><span class="w"> </span><span class="n">DATABASE_URL</span><span class="o">=</span><span class="ss">&quot;postgres://postgres_user:postgres_pass@postgres:5432/main?sslmode=disable&quot;</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="n">ghcr</span><span class="p">.</span><span class="n">io</span><span class="o">/</span><span class="n">amacneil</span><span class="o">/</span><span class="n">dbmate</span><span class="w"> </span><span class="err">\</span>
+<span class="w">  </span><span class="n">up</span>
+</code></pre></div>
+
+<p>And that's how we do changes to the DB in this approach. You can read more about it on DBMate's github page.</p>
+<h3>Backups</h3>
+<p>This is tricky and depends mostly on your general infrastructure. There are many ways to do this.</p>
+<p>The easiest one, assuming you have one VPS running everything would be creating a cron job like this:
+<code>0 2 * * * docker exec postgres pg_dump -U postgres_user main &gt; /backups/appdb.sql</code></p>
+<p>There are many ways here, including creating a docker compose container that will only do this, or even creating a scheduled task in your app but cron job seems the simplest.</p>
+<h1>Outro</h1>
+<p>I've used this setup before on my projects, and it worked well for my use-cases.</p>
+<p>Thanks for reading. </p>
+    </article>
+
+</main>
+
+<footer class="justify-center align-center flex mb-5">
+    <p>
+        Powered by
+        <a class="border-b border-green-500" href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+    </p>
+</footer>
+
+</div>
+</body>

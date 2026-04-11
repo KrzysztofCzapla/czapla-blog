@@ -6,7 +6,7 @@ date: 2026-03-28
 
 # Intro
 
-Many people often overlook security in FastAPI. Despite it coming without the `batteries included™`, it's not really
+Many people often overlook security in FastAPI. Despite it coming without the `batteries included`, it's not really
 complicated to create a secure microservice quickly. This article is a quick check-list of things to implement to sleep
 better at night.
 
@@ -51,8 +51,9 @@ It also does nothing to protect from requests sent from outside the browser.
 JWT (JSON Web Tokens) is a standard for transmitting information securely.
 
 We will store 2 cookies in the domain of our service:
-- Access Token - 15 minutes lifetime - it will be used to access the endpoints. It is short-lived so if someone steals it, we won't have a problem
-- Refresh Token - X days lifetime - used to get new access tokens. We will rotate this one each time we generate a new access token,
+
+1. Access Token - 15 minutes lifetime - it will be used to access the endpoints. It is short-lived so if someone steals it, we won't have a problem
+2. Refresh Token - X days lifetime - used to get new access tokens. We will rotate this one each time we generate a new access token,
 so if someone steals it and both attacker and the user will try to use it, we will know it was compromised.
 
 This is not built-in in FastAPI, but there are nice libraries that we can use. The tokens are generated using a secret key.
@@ -209,9 +210,10 @@ Storing password comes with an overhead. You may want to completely opt-out of s
 Even strong hashing mechanism can be broken.
 
 There are 2 non-conflicting ways to do skip storing passwords:
-- Let users login/register via email - Very straightforward, instead of requiring a password when logging in, just send
+
+1. Let users login/register via email - Very straightforward, instead of requiring a password when logging in, just send
 an email to the user with a link that will generate new JWT cookies
-- Use OAuth2 - This will allow users to login using their accounts from external providers like Google.
+2. Use OAuth2 - This will allow users to login using their accounts from external providers like Google.
 
 In my projects I often use both to allow users the maximum freedom. If you integrate your JWT cookies with OAuth2 and emails
 well then everything goes very smoothly.
@@ -293,9 +295,10 @@ and they will block them before they can get to your app.
 # Miscellaneous
 
 Other important aspects:
-- Never store secrets in the code. No matter if it's only for development or internal, always use a SecretManager or at least
+
+1. Never store secrets in the code. No matter if it's only for development or internal, always use a SecretManager or at least
 an `.env` file.
-- Always use HTTPS. You can easily set that up. For example using letsencrypt + nginx. If you use docker/docker-compose
+2. Always use HTTPS. You can easily set that up. For example using letsencrypt + nginx. If you use docker/docker-compose
 you can implement this using just docker-compose file and specifying the correct images.
 
 # Outro

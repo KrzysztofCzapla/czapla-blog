@@ -78,7 +78,7 @@
                     prose-table:block
                     prose-table:overflow-x-auto">
         <h1>Intro</h1>
-<p>Many people often overlook security in FastAPI. Despite it coming without the <code>batteries includedâ„˘</code>, it's not really
+<p>Many people often overlook security in FastAPI. Despite it coming without the <code>batteries included</code>, it's not really
 complicated to create a secure microservice quickly. This article is a quick check-list of things to implement to sleep
 better at night.</p>
 <p>Note:
@@ -111,10 +111,12 @@ This will be mitigated with using <code>SameSite=Strict</code> policy on the JWT
 <p>It also does nothing to protect from requests sent from outside the browser.</p>
 <h2>JWT</h2>
 <p>JWT (JSON Web Tokens) is a standard for transmitting information securely.</p>
-<p>We will store 2 cookies in the domain of our service:
-- Access Token - 15 minutes lifetime - it will be used to access the endpoints. It is short-lived so if someone steals it, we won't have a problem
-- Refresh Token - X days lifetime - used to get new access tokens. We will rotate this one each time we generate a new access token,
-so if someone steals it and both attacker and the user will try to use it, we will know it was compromised.</p>
+<p>We will store 2 cookies in the domain of our service:</p>
+<ol>
+<li>Access Token - 15 minutes lifetime - it will be used to access the endpoints. It is short-lived so if someone steals it, we won't have a problem</li>
+<li>Refresh Token - X days lifetime - used to get new access tokens. We will rotate this one each time we generate a new access token,
+so if someone steals it and both attacker and the user will try to use it, we will know it was compromised.</li>
+</ol>
 <p>This is not built-in in FastAPI, but there are nice libraries that we can use. The tokens are generated using a secret key.</p>
 <p>The libraries we use, except the obvious ones:
 <code>python-jose passlib[bcrypt]</code></p>
@@ -253,10 +255,12 @@ no password will be leaked.</p>
 <h2>Maybe don't use password?</h2>
 <p>Storing password comes with an overhead. You may want to completely opt-out of storing password of users.
 Even strong hashing mechanism can be broken.</p>
-<p>There are 2 non-conflicting ways to do skip storing passwords:
-- Let users login/register via email - Very straightforward, instead of requiring a password when logging in, just send
-an email to the user with a link that will generate new JWT cookies
-- Use OAuth2 - This will allow users to login using their accounts from external providers like Google.</p>
+<p>There are 2 non-conflicting ways to do skip storing passwords:</p>
+<ol>
+<li>Let users login/register via email - Very straightforward, instead of requiring a password when logging in, just send
+an email to the user with a link that will generate new JWT cookies</li>
+<li>Use OAuth2 - This will allow users to login using their accounts from external providers like Google.</li>
+</ol>
 <p>In my projects I often use both to allow users the maximum freedom. If you integrate your JWT cookies with OAuth2 and emails
 well then everything goes very smoothly.</p>
 <h2>SQL Injection</h2>
@@ -320,11 +324,13 @@ you will probably need an external provider's help. </p>
 In the most popular cloud providers there are some tools that use machine learning to detect those kinds of requests
 and they will block them before they can get to your app.</p>
 <h1>Miscellaneous</h1>
-<p>Other important aspects:
-- Never store secrets in the code. No matter if it's only for development or internal, always use a SecretManager or at least
-an <code>.env</code> file.
-- Always use HTTPS. You can easily set that up. For example using letsencrypt + nginx. If you use docker/docker-compose
-you can implement this using just docker-compose file and specifying the correct images.</p>
+<p>Other important aspects:</p>
+<ol>
+<li>Never store secrets in the code. No matter if it's only for development or internal, always use a SecretManager or at least
+an <code>.env</code> file.</li>
+<li>Always use HTTPS. You can easily set that up. For example using letsencrypt + nginx. If you use docker/docker-compose
+you can implement this using just docker-compose file and specifying the correct images.</li>
+</ol>
 <h1>Outro</h1>
 <p>That's pretty much it, there are not that many things you need to watch out for actually if you count them.</p>
 <p>Thanks for reading.</p>
