@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/codes.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/blog-style.css">
+    <link rel="stylesheet" href="https://czapla.xyz//static/styles/fonts.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon4.png">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body class="bg-black">
+<div class="bg-black min-h-screen flex flex-col text-white">
+
+<header class="fixed top-0 left-0 right-0 z-40 bg-black border-white border-b">
+  <div class="container flex items-center justify-between mx-auto px-4 py-4 max-w-[1200px]">
+
+    <a href="/" class="border-b-2 border-green-500 hover:bg-green-500 font-bold">KC</a>
+
+    <input id="menu-toggle" type="checkbox" class="hidden peer">
+
+    <label for="menu-toggle" class="block md:hidden cursor-pointer">
+      <div class="flex flex-col justify-center w-5 h-5">
+        <span class="w-5 h-0.5 bg-white block"></span>
+        <span class="w-5 h-0.5 bg-white block my-1"></span>
+        <span class="w-5 h-0.5 bg-white block"></span>
+      </div>
+    </label>
+
+    <nav class="absolute top-full left-0 w-full bg-black border-t border-white hidden peer-checked:block md:static md:block md:w-auto md:border-0">
+      <ul class="flex flex-col md:flex-row border-2 border-white md:border-2 font-bold">
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/" class="block hover:bg-green-500 text-xs py-2 px-4">HOME</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/about/about" class="block hover:bg-green-500 text-xs py-2 px-4">ABOUT</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/blog" class="block hover:bg-green-500 text-xs py-2 px-4">BLOG</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/projects" class="block hover:bg-green-500 text-xs py-2 px-4 font-[1100]">PROJECTS</a>
+        </li>
+
+        <li>
+          <a href="/contact/contact" class="block hover:bg-green-500 text-xs py-2 px-4">CONTACT</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main class="mt-20 pt-2 container mx-auto px-4 py-4 md:p-8 max-w-[1200px]">
+    <header>
+        <div class="flex">
+            <h1 class="text-2xl sm:text-3xl border-green-500 border-b-4 pb-1 break-words">
+                Training a YOLO model on your custom dataset locally
+            </h1>
+        </div>
+        <p class="pt-1 pb-5 text-sm sm:text-base">2026-04-25</p>
+    </header>
+
+    <article class="max-w-full prose prose-invert max-w-none blog-content
+                    prose-pre:overflow-x-auto
+                    prose-pre:max-w-full
+                    prose-code:whitespace-pre
+                    prose-img:max-w-full
+                    prose-table:block
+                    prose-table:overflow-x-auto">
+        <h1>YOLO model</h1>
+<p>YOLO (You Only Look Once) model is a machine learning model for real-time object detection. It was introduced in 2015.
+It's biggest advantage was the speed at the cost of accuracy, but the newest version are more and more accurate.</p>
+<p>Using this model you can predict what objects appear in an image and where exactly they appear using bounding boxes (colorful rectangles around the objects).
+So you can, for example, use this model to detect cars and their positions on a street.</p>
+<p>The position detection returns the top left corner of the box and its width and height.
+The model also returns which object class it detected and the confidence of the detection.</p>
+<p>The difference between it and other models at the time, was that it does the detection and classification in one "run".
+Underneath it uses convolutional neural networks.</p>
+<h1>Plan</h1>
+<p>We're going to create a dataset and train a custom YOLO model locally using Python. All the tools will be available for free.</p>
+<p>Our model will detect the existence of a "chudjak" meme in a given image. The steps look like this:
+1. Get the images for the training from the web
+2. Annotate the images
+3. Install the YOLO model locally and train it
+4. Start predicting and detecting</p>
+<p>Let's get started.</p>
+<h1>Creating the dataset</h1>
+<h2>Downloading the images from the web</h2>
+<p>Depending on your use case you might download them from different sources.</p>
+<p>One of the good sources is the <a href="https://storage.googleapis.com/openimages/web/visualizer/index.html">Open Images Dataset from Google</a>.
+You can even download already annotated images from there.</p>
+<p><img alt="" src="https://storage.ghost.io/c/2c/8d/2c8d8c0d-1c15-4b6d-825e-02b78d61d40a/content/images/2024/07/Screenshot-2024-07-16-at-4.25.51-PM-min.png" /></p>
+<p>For this simple demonstration I just downloaded images from the google image search. It is not ideal of course, but for
+our simple use case it is enough.</p>
+<p>First, create a new repository/folder.</p>
+<p>Then you need to gather the images and put them into a <code>&lt;your repo&gt;/dataset/train/images/</code> folder.</p>
+<h2>How many images do you need?</h2>
+<p>Generally, the more, the better. Serious models should train on at least a few thousand examples.</p>
+<p>I gathered only 64 and the model was working well enough after training. The reason for this is that my object is very simple.</p>
+<h2>Annotating data</h2>
+<p>We now need to annotate the data, which means to tell the model which "class" exist in an image and where is it.
+Fortunately we only have one class we want to predict, which makes the whole process a lot easier.</p>
+<p>To annotate the data, I used <a href="https://www.makesense.ai/">makesense.ai</a>. It is open source, free and super easy to use.</p>
+<p>Upload your folder full of images and click "Object Detection" button.</p>
+<p>Then create a new label and click "Start Project".</p>
+<p>After that, the real work begins. You need to annotate all the images. You need to create the bouding boxes around the
+objects you want to detect. I think I don't need to describe the process in more detail as the page itself is very intuitive.</p>
+<p>Try to annotate the data the best you can, because the quality of it matters a lot.</p>
+<p><img alt="" src="https://czapla.xyz/static/makesense.png" /></p>
+<p>After you are done, click "Actions" and then "Export Annotations". A ZIP file will be downloaded with the .txt files with annotations like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="mf">0.247801</span><span class="w"> </span><span class="mf">0.312338</span><span class="w"> </span><span class="mf">0.208615</span><span class="w"> </span><span class="mf">0.331169</span>
+<span class="mf">0</span><span class="w"> </span><span class="mf">0.143494</span><span class="w"> </span><span class="mf">0.768831</span><span class="w"> </span><span class="mf">0.195883</span><span class="w"> </span><span class="mf">0.314286</span>
+</code></pre></div>
+
+<p>The first number represent the class number (in our case just <code>0</code>) and the rest the x1, y1, width height coordinates of the boxes.</p>
+<p>Put the files in <code>&lt;your repo&gt;/dataset/train/labels/</code></p>
+<p>Now we have the dataset ready.</p>
+<p>We just need to create the <code>dataset_config.yaml</code> file in <code>&lt;your repo&gt;/dataset/dataset_config.yaml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Path to your dataset root folder</span>
+<span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;full path&gt;\dataset</span>
+
+<span class="c1"># Relative paths to images inside the &#39;path&#39; directory</span>
+<span class="nt">train</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train/images</span>
+<span class="nt">val</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train/images</span>
+
+<span class="c1"># Class names (The index must match the number in your .txt files)</span>
+<span class="nt">names</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chudjak</span>
+</code></pre></div>
+
+<p>Please put the full path in the path, because otherwise you might encounter some problems. </p>
+<p>Technically, we should also add validation folder to validate the results, but we are going to skip it here.</p>
+<h1>Training</h1>
+<h2>Installing the packages</h2>
+<p>We are going to use <strong>uv</strong> for package management. You can use whatever else tool you want and just translate the command accordingally.</p>
+<p>Lets init the project:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">uv</span> <span class="n">init</span>
+</code></pre></div>
+
+<p>Now let's install the needed packages:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">uv</span> <span class="n">add</span> <span class="n">torch</span> <span class="n">torchvision</span> <span class="n">opencv</span><span class="o">-</span><span class="n">python</span> <span class="n">ultralytics</span>
+</code></pre></div>
+
+<p>The torch packages we just need. OpenCV will come in handy to showcase the image. And ultralytics is the package
+that will download and train the YOLO models.</p>
+<p>We are going to use the <code>yolo11n</code> model. It is the smallest available model but will work well enough.</p>
+<p>It is recommended you have a GPU on your computer to make the training quick.</p>
+<h2>Training</h2>
+<p>The training is actually super simple. We just need to create a new <code>train.py</code> file like that:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">ultralytics</span> <span class="kn">import</span> <span class="n">YOLO</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">YOLO</span><span class="p">(</span><span class="s2">&quot;yolo11n.pt&quot;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="s2">&quot;dataset/dataset_config.yaml&quot;</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="c1"># you can make the epochs number smaller, for the results were fine on 100</span>
+        <span class="n">imgsz</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># this will use GPU if possible, if you dont have it, use device=&quot;cpu&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Now, we just need to execute this file and wait for the model to be trained. It will take some time of course.</p>
+<h2>Testing our model</h2>
+<p>After the training you will see that the process created a new <code>runs</code> folder. It has some data about the accuracy of the model etc.
+But what we are interested in is the <code>runs/detect/train/weights/best.pt</code>. This is "our" model that is trained on the dataset we've just created.</p>
+<p>To test it we can do it like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">ultralytics</span> <span class="kn">import</span> <span class="n">YOLO</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">YOLO</span><span class="p">(</span><span class="s2">&quot;runs/detect/train/weights/best.pt&quot;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;path/to/your/image.jpg&quot;</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">annotated_frame</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">&quot;Chudjak&quot;</span><span class="p">,</span> <span class="n">annotated_frame</span><span class="p">)</span> <span class="c1"># this will show an image with the detections</span>
+</code></pre></div>
+
+<p>I also created a small repository with the already trained model and a GUI app that 
+allows us to see the predictions of the model in real time <a href="https://github.com/KrzysztofCzapla/chudjak-detector">here</a>.</p>
+<p><img alt="" src="https://github.com/KrzysztofCzapla/chudjak-detector/raw/main/showcase.png" /></p>
+<p>As you can see it correctly predicted the uploaded image.</p>
+<p>Thanks for reading, I hope I explained well how to create a dataset and train a YOLO model on it.</p>
+    </article>
+
+</main>
+
+<footer class="justify-center align-center flex mb-5">
+    <p>
+        Powered by
+        <a class="border-b border-green-500" href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+    </p>
+</footer>
+
+</div>
+</body>
