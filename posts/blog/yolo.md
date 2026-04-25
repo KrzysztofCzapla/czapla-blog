@@ -70,7 +70,7 @@ objects you want to detect. I think I don't need to describe the process in more
 
 Try to annotate the data the best you can, because the quality of it matters a lot.
 
-![](https://czapla.xyz/static/makesense.png)
+![](https://czapla.xyz/blog/static/makesense.png)
 
 After you are done, click "Actions" and then "Export Annotations". A ZIP file will be downloaded with the .txt files with annotations like this:
 ```
