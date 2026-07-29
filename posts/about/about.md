@@ -1,12 +1,12 @@
-----
+---
 title: About Me
-description: My name is Krzysztof Czapla and this is my personal website.
+description: Python backend engineer specialising in ML infrastructure — multi-cloud, Kubernetes, and performance engineering.
 date: 2026-03-14
-----
+---
 
 My name is Krzysztof Czapla. Christopher - if you don't speak Polish.
 
-I am from Poland. I work as Backend/Python Developer and study Computer Science.
+I am from Poland. I'm a Python backend engineer specialising in the infrastructure that ML systems run on — multi-cloud (AWS/Azure certified), Kubernetes, and production performance engineering under load.
 
 I like technology, movies, philosophy and history.
 
