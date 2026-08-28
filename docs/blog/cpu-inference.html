@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krzysztof Czapla</title>
+    <link rel="stylesheet" href="https://czapla.xyz/static/styles/style.css">
+    <link rel="stylesheet" href="https://czapla.xyz/static/styles/codes.css">
+    <link rel="stylesheet" href="https://czapla.xyz/static/styles/blog-style.css">
+    <link rel="stylesheet" href="https://czapla.xyz/static/styles/fonts.css">
+    <link rel="icon" href="https://czapla.xyz/static/favicon4.png">
+    <meta name="description" content="A simple, minimal blog">
+    <meta name="author" content="Krzysztof Czapla">
+</head>
+
+<body class="bg-black">
+<div class="bg-black min-h-screen flex flex-col text-white">
+
+<header class="fixed top-0 left-0 right-0 z-40 bg-black border-white border-b">
+  <div class="container flex items-center justify-between mx-auto px-4 py-4 max-w-[1200px]">
+
+    <a href="/" class="border-b-2 border-green-500 hover:bg-green-500 font-bold">KC</a>
+
+    <input id="menu-toggle" type="checkbox" class="hidden peer">
+
+    <label for="menu-toggle" class="block md:hidden cursor-pointer">
+      <div class="flex flex-col justify-center w-5 h-5">
+        <span class="w-5 h-0.5 bg-white block"></span>
+        <span class="w-5 h-0.5 bg-white block my-1"></span>
+        <span class="w-5 h-0.5 bg-white block"></span>
+      </div>
+    </label>
+
+    <nav class="absolute top-full left-0 w-full bg-black border-t border-white hidden peer-checked:block md:static md:block md:w-auto md:border-0">
+      <ul class="flex flex-col md:flex-row border-2 border-white md:border-2 font-bold">
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/" class="block hover:bg-green-500 text-xs py-2 px-4">HOME</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/about/about" class="block hover:bg-green-500 text-xs py-2 px-4">ABOUT</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/blog" class="block hover:bg-green-500 text-xs py-2 px-4">BLOG</a>
+        </li>
+
+        <li class="border-b md:border-b-0 md:border-r border-white">
+          <a href="/projects" class="block hover:bg-green-500 text-xs py-2 px-4 font-[1100]">PROJECTS</a>
+        </li>
+
+        <li>
+          <a href="/contact/contact" class="block hover:bg-green-500 text-xs py-2 px-4">CONTACT</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main class="mt-20 pt-2 container mx-auto px-4 py-4 md:p-8 max-w-[1200px]">
+    <header class="blog-content-title-section">
+        <div class="flex">
+            <h1 class="text-2xl sm:text-3xl border-green-500 border-b-4 pb-1 break-words">
+                Making a CPU image classifier 2.4x faster
+            </h1>
+        </div>
+        <p class="pt-1 pb-5 text-sm sm:text-base">2026-08-28</p>
+    </header>
+
+    <article class="max-w-full prose prose-invert max-w-none blog-content
+                    prose-pre:overflow-x-auto
+                    prose-pre:max-w-full
+                    prose-code:whitespace-pre
+                    prose-img:max-w-full
+                    prose-table:block
+                    prose-table:overflow-x-auto">
+        <h1>Intro</h1>
+<p>I run MobileNetV2 behind a FastAPI endpoint. You POST an image, you get the top
+3 labels back. The model runs on 2 CPU cores with a 2 GiB memory limit.</p>
+<p>The load generator is k6 (which is a tool to test your services under load), open-loop with Poisson arrivals, so the arrival rate
+does not slow down when the service does. All numbers below use that.</p>
+<p>Basically, I got the pipeline from 87 ms to 36 ms per image, but also applied
+two well-known optimizations that made things worse.</p>
+<h1>The starting point</h1>
+<p>The first honest run was bad.</p>
+<table>
+<thead>
+<tr>
+<th>metric</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>offered load</td>
+<td>8 RPS</td>
+</tr>
+<tr>
+<td>end-to-end p99</td>
+<td>3 587 ms</td>
+</tr>
+<tr>
+<td>server-side p99</td>
+<td>907 ms</td>
+</tr>
+</tbody>
+</table>
+<p>The gap between those two numbers is queueing. Requests spent most of their
+life waiting, not computing. The service could not serve the load it was given.</p>
+<p>The first useful step was not an optimization. It was instrumentation: a
+Prometheus histogram per pipeline stage. It showed where the time went, per
+image:</p>
+<table>
+<thead>
+<tr>
+<th>stage</th>
+<th>time</th>
+<th>share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JPEG decode</td>
+<td>40.6 ms</td>
+<td>47%</td>
+</tr>
+<tr>
+<td>preprocess</td>
+<td>6.0 ms</td>
+<td>7%</td>
+</tr>
+<tr>
+<td>model inference</td>
+<td>40.3 ms</td>
+<td>46%</td>
+</tr>
+</tbody>
+</table>
+<p>Two findings here. Inference was only half the problem. And
+no model optimization would ever touch the other half.</p>
+<h1>Step 1: move storage writes off the request path</h1>
+<p>Every request wrote the image and its predictions to object storage before
+answering. Two synchronous writes, both inside the latency budget. Moving them
+to a background task removed them from the response time.</p>
+<p>Super cheap without tradeoff.</p>
+<h1>Step 2: ONNX Runtime</h1>
+<p>I exported the model to ONNX and served it with ONNX Runtime instead of just PyTorch.
+Same weights and outputs. I verified label-for-label at several
+batch sizes before trusting it.</p>
+<p>There are 2 reasons why it worked.</p>
+<p>Python leaves here. PyTorch eager returns to the interpreter between
+every one of the ~150 operations in the graph. ONNX Runtime runs the whole
+graph in C++.</p>
+<p>The runtime also rewrites the graph at load time. It fuses <code>Conv + BatchNorm +
+ReLU</code> into single kernels, and folds the batch-norm layers into the conv
+weights entirely. Batch-norm at inference is "multiply by A, add B", and a
+convolution is the same, so the two collapse into one.
+It was written by smart people so we can trust it, especially since we compared it with the previous results.</p>
+<p>Inference went from 43 ms to 15 ms per image. That is 2.8x, for free, with
+identical predictions.</p>
+<h1>Step 3: fix the input, not the decoder</h1>
+<p>Decode was still 40 ms. I tried faster decoders. The best alternative was 18%
+faster on average and slower on large files.</p>
+<p>JPEG decode cost tracks the compressed file size,
+because every decoder must Huffman-decode the whole stream before it
+can output a pixel. A 1.6 MB photo costs about 270 ms to decode no matter what
+you decode it with. Scaling tricks help only a little: decoding at 1/8
+resolution saved 38%, and the rest is irreducible.</p>
+<p>The model only needs 224x224 pixels. Sending 12-megapixel photos to it is
+waste that the server cannot undo. So the fix was changing the input policy. I
+sized the workload like a client-side-resized upload, 0.2 to 1.1 megapixels.</p>
+<p>I updated the k6s example images accordingly and decode dropped from 40.6 ms to 14.3 ms.</p>
+<p>After steps 1 to 3:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>before</th>
+<th>after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pipeline per image</td>
+<td>87 ms</td>
+<td>36 ms</td>
+</tr>
+<tr>
+<td>end-to-end p99 at the same load</td>
+<td>3 587 ms</td>
+<td>64 ms</td>
+</tr>
+</tbody>
+</table>
+<h1>What failed: dynamic batching</h1>
+<p>The idea is standard. Hold incoming requests for a few milliseconds, run them
+through the model as one batch, split the results back to the callers. I built
+it with an asyncio queue, one consumer task, and the built-in futures.</p>
+<p><strong>The first attempt made everything worse.</strong> p99 went from 64 ms to over
+200 ms. The logs showed why. At the offered load, requests arrived about 140 ms
+apart, and the batching window was 30 ms. Nearly every "batch" contained one
+image.</p>
+<p>Expected batch size is roughly <code>1 + RPS * window</code>. Every request paid the wait.
+Almost none got a batch.</p>
+<p><strong>The second attempt exposed a better bug.</strong> I had put JPEG decode inside the
+batch worker. That serialized every decode in the service through a single
+thread, while a second core sat idle.</p>
+<p>Decode had to move back into the request path, where each request decodes in
+parallel. This works because PIL releases the GIL during decode, so it is real
+parallelism and not turn-taking. That single fact is worth knowing: a C
+extension can release the GIL while it works, and PIL, NumPy, PyTorch and ONNX
+Runtime all do. Threading only helps if the work releases it.</p>
+<p>The batch worker also needed its own dedicated thread. It shared a thread pool
+with the decode calls, and under load the many producers starved the one
+consumer. The queue grew, nothing drained it, and every request timed out at
+once.</p>
+<p>With all of that fixed and measured properly at 20 RPS, batches still averaged
+under 2 images, and p99 was no better than the unbatched service.</p>
+<p>The actual implmentation was okay. Batching is best when a batch of N costs
+much less than N single calls. On a GPU that is true, on a CPU it is mostly false: 
+batched inference scales near-linearly with
+batch size, so there is nothing to optimize.</p>
+<p>A small model makes it worse. MobileNetV2 fits in the CPU cache, and published
+measurements show batch size 1 is often optimal for models this size.</p>
+<h1>What failed numero dos: INT8 quantization</h1>
+<p>INT8 quantization stores weights and activations as 8-bit integers instead of
+floats. A quarter of the memory traffic, and some CPUs have instructions built
+for exactly this.</p>
+<p>I quantized the ONNX graph and added an accuracy check to the build.
+Quantization never raises an error, it just returns different answers, so
+without a check a broken model ships silently.</p>
+<p>The check flagged it straight away: only 81% of images kept the same top-1
+label. That turned out to be a bad measure. On ordinary photos this model is
+barely confident, with top scores around 0.03 to 0.15, so the top two labels
+are within noise of each other and swap easily. Checking whether the original
+winner stayed anywhere in the quantized top-3, which is what the API returns
+anyway, was stable.</p>
+<p>But it was not faster. Latency was the same and less stable. The quantized
+graph wraps each operator in conversion nodes, and the runtime has to fuse
+those into real int8 kernels. Where it cannot, you pay float math plus the
+conversions on top. Without the right CPU instructions there is not much to win
+in the first place.</p>
+<p>So I removed it. The plain ONNX model is simpler to build, has stable latency
+and exact accuracy.</p>
+<h1>Where it landed</h1>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>start</th>
+<th>end</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pipeline per image</td>
+<td>87 ms</td>
+<td>36 ms</td>
+</tr>
+<tr>
+<td>inference per image</td>
+<td>43 ms</td>
+<td>15 ms</td>
+</tr>
+<tr>
+<td>decode per image</td>
+<td>41 ms</td>
+<td>14 ms</td>
+</tr>
+<tr>
+<td>sustainable load</td>
+<td>~11 RPS</td>
+<td>~35 RPS</td>
+</tr>
+</tbody>
+</table>
+<p>The final configuration is kinda boring. ONNX Runtime with graph optimizations,
+sanely sized inputs, storage writes off the request path, thread counts matched
+to the CPU limit.</p>
+<p>The two clever techniques, batching and quantization, are the ones that did not
+survive measurement.</p>
+<h1>What I would tell someone starting something similar</h1>
+<p><strong>Instrument per stage before optimizing anything.</strong> The stage histogram is
+what showed that half the budget was JPEG decode, which no model work could
+fix. Without it I would have spent the whole time on the model and moved
+end-to-end latency by a third of what I expected.</p>
+<p><strong>Measure with an open-loop load generator</strong>, and treat dropped iterations as a
+validity check. A closed-loop test quietly slows down along with the service
+and reports flattering percentiles.</p>
+<p><strong>Do the arithmetic first.</strong> 2 CPU cores is 2 000 CPU-milliseconds per second.
+Divide by the CPU cost of one request and that is your ceiling. No technique
+moves you past it. Techniques only lower the cost per request.</p>
+<p><strong>GPU advice does not transfer to CPUs by default.</strong> Batching and INT8 are both
+correct, standard and widely documented, and both lost to the boring baseline
+on this hardware. The only way to know was to build them and measure.</p>
+    </article>
+
+</main>
+
+<footer class="justify-center align-center flex mb-5">
+    <p>
+        Powered by
+        <a class="border-b border-green-500" href="https://github.com/KrzysztofCzapla/heron-blog-engine">Heron Blog Engine</a>
+    </p>
+</footer>
+
+</div>
+</body>
